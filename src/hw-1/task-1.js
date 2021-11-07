@@ -3,11 +3,11 @@ function checkPrime(...numbers) {
     let result;
     for (let i = 2; i < number; ++i) {
       if ((number % i) === 0) {
-        result = `${number} is not prime.`;
+        result = `${number} is NOT prime.`;
       }
     }
     if (!result) {
-      result = number > 1 ? `${number} is prime.` : `${number} is not prime.`;
+      result = number > 1 ? `${number} is prime.` : `${number} is NOT prime.`;
     }
     console.log(result);
   });
