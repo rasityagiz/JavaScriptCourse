@@ -12,77 +12,62 @@ export default class UserService {
     this.loggerService = loggerService;
   }
 
+  // @Can be private
+  userAgeCheck(user) {
+    let hasError = false;
+    if (Number.isNaN(Number.parseInt(+user.age))) {
+      hasError = true;
+      this.errors.push(new DataError(`Validation failed. ${user.age} is not a number.`, user));
+    }
+    return hasError;
+  }
+
+  // @Can be private
+  isUserInvalid(user, requiredFields) {
+    let hasError = false;
+    for (const field of requiredFields) {
+      if (!user[field]) {
+        hasError = true;
+        this.errors.push(new DataError(`Validation failed. ${field} is required.`, user));
+      }
+    }
+    return hasError;
+  }
+
+  // @Can be private
+  addCustomer(user) {
+    let requiredFields = 'id firstName lastName city age'.split(' ');
+    if (!this.isUserInvalid(user, requiredFields) && !this.userAgeCheck(user)) {
+      this.customers.push(user);
+    }
+  }
+
+  // @Can be private
+  addEmployee(user) {
+    let requiredFields = 'id firstName lastName city age salary'.split(' ');
+    if (!this.isUserInvalid(user, requiredFields) && !this.userAgeCheck(user)) {
+      this.employees.push(user);
+    }
+  }
+
+
   load() {
     for (const user of users) {
-      switch (user.type) {
-        case 'customer':
-          if (!this.isCustomerInvalid(user)) {
-            this.customers.push(user);
-          }
-          break;
-        case 'employee':
-          if (!this.isEmployeeInvalid(user)) {
-            this.employees.push(user);
-          }
-          break;
-        default:
-          this.errors.push(new DataError('Wrong user type', user));
-          break;
-      }
+      this.add(user);
     }
   }
 
-  // react'ta yup kutuphanesi
-  isCustomerInvalid(user) {
-    let requiredFields = 'id firstName lastName city age'.split(' ');
-    let hasError = false;
-    for (const field of requiredFields) {
-      if (!user[field]) {
-        hasError = true;
-        this.errors.push(new DataError(`Validation failed. ${field} is required.`, user));
-      }
-    }
-
-    if (Number.isNaN(Number.parseInt(+user.age))) {
-      hasError = true;
-      this.errors.push(new DataError(`Validation failed. ${user.age} is not a number.`, user));
-    }
-
-    return hasError;
-  }
-
-  isEmployeeInvalid(user) {
-    let requiredFields = 'id firstName lastName city age salary'.split(' ');
-    let hasError = false;
-    for (const field of requiredFields) {
-      if (!user[field]) {
-        hasError = true;
-        this.errors.push(new DataError(`Validation failed. ${field} is required.`, user));
-      }
-    }
-
-    if (Number.isNaN(Number.parseInt(+user.age))) {
-      hasError = true;
-      this.errors.push(new DataError(`Validation failed. ${user.age} is not a number.`, user));
-    }
-
-    return hasError;
-  }
 
   add(user) {
     switch (user.type) {
       case 'customer':
-        if (!this.isCustomerInvalid(user)) {
-          this.customers.push(user);
-        }
+        this.addCustomer(user);
         break;
       case 'employee':
-        if (!this.isEmployeeInvalid(user)) {
-          this.employees.push(user);
-        }
+        this.addEmployee(user);
         break;
       default:
-        this.errors.push(new DataError('This user can not be added. Wrong user type.', user));
+        this.errors.push(new DataError('Wrong user type', user));
         break;
     }
     this.loggerService.log(user);
@@ -97,7 +82,8 @@ export default class UserService {
   }
 
   getCustomersSorted() {
-    return this.customers.sort((customer1, customer2) => {
+    const arrayToSort = Object.assign([], this.customers);
+    return arrayToSort.sort((customer1, customer2) => {
       if (customer1.firstName > customer2.firstName) {
         return 1;
       } else if (customer1.firstName === customer2.firstName) {

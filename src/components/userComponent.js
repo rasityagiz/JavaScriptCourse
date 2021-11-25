@@ -26,7 +26,7 @@ let customerToAdd = new Customer('6', 'Tarcin', 'Bozca', 'Evrese', false);
 customerToAdd.type = 'customer';
 
 userService.add(customerToAdd);
-console.log(userService.customers);
-console.log(userService.employees);
-console.log(userService.errors);
-console.log(userService.getCustomersSorted());
+console.log('Customers: ', userService.customers);
+console.log('Employees: ', userService.employees);
+console.log('Errors: ', userService.errors);
+console.log('Sorted Customers: ', userService.getCustomersSorted());
